@@ -1,21 +1,22 @@
 import { Elysia } from "elysia";
 import { MessageModel } from "./model";
-import type { Message } from "../Utils";
-
-let messages: Message[] = [];
+import { MessageService } from "./service";
 
 new Elysia({ prefix: "/messages" })
+
+  .get("/", ({ set }) => {
+    const messages = MessageService.getAllMessages();
+    set.status = 200;
+    return messages;
+  })
 
   .post(
     "/",
     ({ body, set }) => {
-      body: body;
-
-      if (body.content && body.sender != undefined) {
+      const createdMessage = MessageService.createMessage({ body });
+      if (createdMessage != undefined) {
         set.status = 201;
-        const message: Message = body;
-        messages.push(message);
-        return message;
+        return createdMessage;
       } else {
         set.status = 400;
         return new Error("Missing arguments.");
@@ -25,9 +26,4 @@ new Elysia({ prefix: "/messages" })
       body: MessageModel.PostMessageBody,
     },
   )
-
-  .get("/", ({ set }) => {
-    set.status = 200;
-    return messages;
-  })
   .listen(3000);
