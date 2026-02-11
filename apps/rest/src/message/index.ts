@@ -21,9 +21,9 @@ new Elysia({ prefix: "/api" })
     "/messages",
     async ({ body, set }) => {
       try {
-        if (!body.content.trim() || !body.sender.trim()) {
+        if (!body.content?.trim() || !body.sender?.trim()) {
           set.status = 422;
-          return new MissingArgumentsError("Missing arguments.");
+          return new MissingArgumentsError("Required parameters are missing.");
         }
         const createdMessage = await MessageService.createMessage({ body });
         set.status = 202;
@@ -31,7 +31,7 @@ new Elysia({ prefix: "/api" })
       } catch (e) {
         if (e instanceof PrismaClientInitializationError) {
           set.status = 503;
-          return { error: "Database unavailable" };
+          return { error: "Unable to establish database connection." };
         }
         if (
           e instanceof PrismaClientKnownRequestError ||
@@ -39,10 +39,10 @@ new Elysia({ prefix: "/api" })
           e instanceof PrismaClientRustPanicError
         ) {
           set.status = 500;
-          return { error: "Internal Server Error" };
+          return { error: "The server encountered an unexpected exception." };
         }
         set.status = 500;
-        return { error: "Internal Server Error" };
+        return { error: "The server encountered an unexpected exception." };
       }
     },
     {
