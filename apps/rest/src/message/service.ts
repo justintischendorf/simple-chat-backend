@@ -7,6 +7,11 @@ import {
 import type { MessageModel } from "./model";
 
 export abstract class MessageService {
+  static async getAllMessages() {
+    const messages = await prisma.message.findMany();
+    return messages;
+  }
+
   static async createMessage({
     body,
   }: {
@@ -22,8 +27,7 @@ export abstract class MessageService {
     return createdMessage;
   }
 
-  static async getAllMessages() {
-    const messages = await prisma.message.findMany();
-    return messages;
+  static async deleteMessage() {
+    prisma.message.deleteMany();
   }
 }

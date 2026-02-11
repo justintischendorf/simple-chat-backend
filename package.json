@@ -13,6 +13,8 @@
     "@prisma/adapter-pg": "^7.3.0",
     "@prisma/client": "^7.3.0",
     "cloudevents": "^10.0.0",
+    "compose": "^0.1.2",
+    "docker": "^1.0.0",
     "elysia": "^1.4.23",
     "ioredis": "^5.9.2",
     "pg": "^8.18.0",
