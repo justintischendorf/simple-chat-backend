@@ -1,5 +1,5 @@
 import { prisma } from "../../../../packages/database/src";
-import { enqueueMessage } from "../../../../packages/modules/redis-setup";
+import { enqueueMessage } from "../../../../packages/modules/redis";
 import {
   CLOUD_EVENT_SOURCE,
   CLOUD_EVENT_TYPES,

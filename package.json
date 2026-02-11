@@ -20,6 +20,7 @@
     "uuid": "^13.0.0"
   },
   "scripts": {
-    "dev": "bun run apps/rest/src/message/index.ts"
+    "dev": "bun run apps/rest/src/message/index.ts",
+    "worker": "bun run apps/rest/src/worker/index.ts"
   }
 }
