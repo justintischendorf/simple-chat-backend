@@ -1,25 +1,48 @@
 import { Elysia } from "elysia";
 import { MessageModel } from "./model";
 import { MessageService } from "./service";
+import {
+  PrismaClientInitializationError,
+  PrismaClientKnownRequestError,
+  PrismaClientRustPanicError,
+  PrismaClientUnknownRequestError,
+} from "@prisma/client/runtime/wasm-compiler-edge";
+import { MissingArgumentsError } from "../../../../packages/modules/errors";
 
-new Elysia({ prefix: "/messages" })
+new Elysia({ prefix: "/api" })
 
-  .get("/", ({ set }) => {
-    const messages = MessageService.getAllMessages();
+  .get("/messages", async ({ set }) => {
+    const messages = await MessageService.getAllMessages();
     set.status = 200;
     return messages;
   })
 
   .post(
-    "/",
-    ({ body, set }) => {
-      const createdMessage = MessageService.createMessage({ body });
-      if (createdMessage != undefined) {
-        set.status = 201;
+    "/messages",
+    async ({ body, set }) => {
+      try {
+        if (!body.content.trim() || !body.sender.trim()) {
+          set.status = 422;
+          return new MissingArgumentsError("Missing arguments.");
+        }
+        const createdMessage = await MessageService.createMessage({ body });
+        set.status = 202;
         return createdMessage;
-      } else {
-        set.status = 400;
-        return new Error("Missing arguments.");
+      } catch (e) {
+        if (e instanceof PrismaClientInitializationError) {
+          set.status = 503;
+          return { error: "Database unavailable" };
+        }
+        if (
+          e instanceof PrismaClientKnownRequestError ||
+          e instanceof PrismaClientUnknownRequestError ||
+          e instanceof PrismaClientRustPanicError
+        ) {
+          set.status = 500;
+          return { error: "Internal Server Error" };
+        }
+        set.status = 500;
+        return { error: "Internal Server Error" };
       }
     },
     {

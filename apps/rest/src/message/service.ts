@@ -1,4 +1,9 @@
 import { prisma } from "../../../../packages/database/src";
+import { enqueueMessage } from "../../../../packages/modules/redis-setup";
+import {
+  CLOUD_EVENT_SOURCE,
+  CLOUD_EVENT_TYPES,
+} from "../../../../packages/modules/utils";
 import type { MessageModel } from "./model";
 
 export abstract class MessageService {
@@ -7,7 +12,9 @@ export abstract class MessageService {
   }: {
     body: (typeof MessageModel.PostMessageBody)["static"];
   }) {
-    const createdMessage = await prisma.message.create({
+    const createdMessage = await enqueueMessage({
+      type: CLOUD_EVENT_TYPES.MESSAGE_SENT,
+      source: CLOUD_EVENT_SOURCE.MESSAGE_SENT,
       data: {
         ...body,
       },
