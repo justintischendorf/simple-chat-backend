@@ -1,5 +1,4 @@
 import { prisma } from "../../../../packages/database/src";
-import type { Message } from "../../modules/utils";
 import type { MessageModel } from "./model";
 
 export abstract class MessageService {
