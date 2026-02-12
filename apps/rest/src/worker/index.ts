@@ -1,6 +1,7 @@
 import { CloudEvent } from "cloudevents";
 import { prisma } from "../../../../packages/database/src";
 import Redis from "ioredis";
+import { addMessageToCache } from "../../../../packages/modules/redis/cache";
 
 interface MessageData {
   id: string;
@@ -19,7 +20,7 @@ while (true) {
       if (event.data === undefined) {
         throw new Error("Missing required data.");
       } else {
-        await prisma.message.create({
+        const message = await prisma.message.create({
           data: {
             id: event.data.id,
             content: event.data.content,
@@ -27,6 +28,7 @@ while (true) {
             createdAt: new Date().toISOString(),
           },
         });
+        addMessageToCache(message);
         console.log("Processing Event ID: " + event.id);
       }
     }

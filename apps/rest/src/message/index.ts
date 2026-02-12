@@ -17,7 +17,7 @@ new Elysia({ prefix: "/api" })
       set.status = 200;
       return messages;
     } catch (e) {
-      console.error(e)
+      console.error(e);
       if (e instanceof PrismaClientInitializationError) {
         set.status = 503;
         return { error: "Unable to establish database connection." };
@@ -49,6 +49,37 @@ new Elysia({ prefix: "/api" })
         const createdMessage = await MessageService.createMessage({ body });
         set.status = 202;
         return createdMessage;
+      } catch (e) {
+        if (e instanceof PrismaClientInitializationError) {
+          set.status = 503;
+          return { error: "Unable to establish database connection." };
+        }
+        if (
+          e instanceof PrismaClientUnknownRequestError ||
+          e instanceof PrismaClientRustPanicError
+        ) {
+          set.status = 500;
+          return { error: "The server encountered an unexpected exception." };
+        }
+        if (e instanceof PrismaClientKnownRequestError) {
+          set.status = 500;
+          return { error: e.code };
+        }
+        set.status = 500;
+        return { error: "The server encountered an unexpected exception." };
+      }
+    },
+    {
+      body: MessageModel.PostMessageBody,
+    },
+  )
+
+  .patch(
+    "/messages:id",
+    async ({ set, body }) => {
+      try {
+        //MessageService.update
+        set.status = 202;
       } catch (e) {
         if (e instanceof PrismaClientInitializationError) {
           set.status = 503;

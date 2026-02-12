@@ -1,5 +1,6 @@
 import { prisma } from "../../../../packages/database/src";
-import { enqueueMessage } from "../../../../packages/modules/redis";
+import { deleteAllFromCache } from "../../../../packages/modules/redis/cache";
+import { enqueueMessage } from "../../../../packages/modules/redis/queue";
 import {
   CLOUD_EVENT_SOURCE,
   CLOUD_EVENT_TYPES,
@@ -24,10 +25,12 @@ export abstract class MessageService {
         ...body,
       },
     });
+
     return createdMessage;
   }
 
   static async deleteMessage() {
     prisma.message.deleteMany();
+    deleteAllFromCache();
   }
 }
