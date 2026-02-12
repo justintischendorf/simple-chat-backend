@@ -29,14 +29,6 @@ export abstract class MessageService {
     return createdMessage;
   }
 
-  static async updateMessage({
-    body,
-    params,
-  }: {
-    body: (typeof MessageModel.PostMessageBody)["static"];
-    params: string;
-  }) {}
-
   static async deleteMessage() {
     prisma.message.deleteMany();
     deleteAllFromCache();
