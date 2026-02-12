@@ -1,12 +1,14 @@
-import { redis } from "bun";
 import { CloudEvent } from "cloudevents";
 import { prisma } from "../../../../packages/database/src";
+import Redis from "ioredis";
 
 interface MessageData {
   id: string;
   content: string;
   sender: string;
 }
+
+const redis = new Redis();
 
 while (true) {
   try {

@@ -17,6 +17,7 @@ new Elysia({ prefix: "/api" })
       set.status = 200;
       return messages;
     } catch (e) {
+      console.error(e)
       if (e instanceof PrismaClientInitializationError) {
         set.status = 503;
         return { error: "Unable to establish database connection." };
