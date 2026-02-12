@@ -1,6 +1,6 @@
-import { redis } from "bun";
 import { CloudEvent } from "cloudevents";
 import { prisma } from "../../../../packages/database/src";
+import Redis from "ioredis";
 
 interface MessageData {
   id: string;
@@ -8,10 +8,12 @@ interface MessageData {
   sender: string;
 }
 
+const redis = new Redis();
+
 while (true) {
-  const result = await redis.blpop("message-inbox", 0);
-  if (result) {
-    try {
+  try {
+    const result = await redis.blpop("message-inbox", 0);
+    if (result) {
       const data = JSON.parse(result[1]);
       const event = new CloudEvent<MessageData>(data);
       if (event.data === undefined) {
@@ -27,9 +29,8 @@ while (true) {
         });
         console.log("Processing Event ID: " + event.id);
       }
-    } catch (e) {
-      console.log(e);
-      throw new Error("An error occurred while saving to the database");
     }
+  } catch (e) {
+    console.error("Error processing job: ", e);
   }
 }

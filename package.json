@@ -13,6 +13,8 @@
     "@prisma/adapter-pg": "^7.3.0",
     "@prisma/client": "^7.3.0",
     "cloudevents": "^10.0.0",
+    "compose": "^0.1.2",
+    "docker": "^1.0.0",
     "elysia": "^1.4.23",
     "ioredis": "^5.9.2",
     "pg": "^8.18.0",
@@ -20,7 +22,8 @@
     "uuid": "^13.0.0"
   },
   "scripts": {
-    "dev": "bun run apps/rest/src/message/index.ts",
-    "worker": "bun run apps/rest/src/worker/index.ts"
+    "rest": "bun run --watch apps/rest/src/message/index.ts",
+    "worker": "bun run --watch apps/rest/src/worker/index.ts",
+    "dev": "bun run --parallel --watch rest worker"
   }
 }

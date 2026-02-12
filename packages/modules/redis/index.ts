@@ -1,6 +1,8 @@
 import { v4 as uuidv4 } from "uuid";
 import { CloudEvent } from "cloudevents";
-import { redis } from "bun";
+import { Redis } from "ioredis";
+
+const redis = new Redis();
 
 export async function enqueueMessage({
   data,

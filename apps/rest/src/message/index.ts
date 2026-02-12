@@ -12,9 +12,30 @@ import { MissingArgumentsError } from "../../../../packages/modules/errors";
 new Elysia({ prefix: "/api" })
 
   .get("/messages", async ({ set }) => {
-    const messages = await MessageService.getAllMessages();
-    set.status = 200;
-    return messages;
+    try {
+      const messages = await MessageService.getAllMessages();
+      set.status = 200;
+      return messages;
+    } catch (e) {
+      console.error(e)
+      if (e instanceof PrismaClientInitializationError) {
+        set.status = 503;
+        return { error: "Unable to establish database connection." };
+      }
+      if (
+        e instanceof PrismaClientUnknownRequestError ||
+        e instanceof PrismaClientRustPanicError
+      ) {
+        set.status = 500;
+        return { error: "The server encountered an unexpected exception." };
+      }
+      if (e instanceof PrismaClientKnownRequestError) {
+        set.status = 500;
+        return { error: e.code };
+      }
+      set.status = 500;
+      return { error: "The server encountered an unexpected exception." };
+    }
   })
 
   .post(
@@ -34,12 +55,15 @@ new Elysia({ prefix: "/api" })
           return { error: "Unable to establish database connection." };
         }
         if (
-          e instanceof PrismaClientKnownRequestError ||
           e instanceof PrismaClientUnknownRequestError ||
           e instanceof PrismaClientRustPanicError
         ) {
           set.status = 500;
           return { error: "The server encountered an unexpected exception." };
+        }
+        if (e instanceof PrismaClientKnownRequestError) {
+          set.status = 500;
+          return { error: e.code };
         }
         set.status = 500;
         return { error: "The server encountered an unexpected exception." };
@@ -49,4 +73,29 @@ new Elysia({ prefix: "/api" })
       body: MessageModel.PostMessageBody,
     },
   )
+
+  .delete("/messages", async ({ set }) => {
+    try {
+      MessageService.deleteMessage();
+      set.status = 202;
+    } catch (e) {
+      if (e instanceof PrismaClientInitializationError) {
+        set.status = 503;
+        return { error: "Unable to establish database connection." };
+      }
+      if (
+        e instanceof PrismaClientUnknownRequestError ||
+        e instanceof PrismaClientRustPanicError
+      ) {
+        set.status = 500;
+        return { error: "The server encountered an unexpected exception." };
+      }
+      if (e instanceof PrismaClientKnownRequestError) {
+        set.status = 500;
+        return { error: e.code };
+      }
+      set.status = 500;
+      return { error: "The server encountered an unexpected exception." };
+    }
+  })
   .listen(3000);
