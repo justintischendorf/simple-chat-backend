@@ -1,7 +1,7 @@
 import { CloudEvent } from "cloudevents";
 import { prisma } from "../../../../packages/database/src";
 import Redis from "ioredis";
-import { addMessageToCache } from "../../../../packages/modules/redis/cache";
+import { postMessageToCache } from "../../../../packages/modules/redis/cache";
 
 interface MessageData {
   id: string;
@@ -28,7 +28,7 @@ while (true) {
             createdAt: new Date().toISOString(),
           },
         });
-        addMessageToCache(message);
+        postMessageToCache(message);
         console.log("Processing Event ID: " + event.id);
       }
     }

@@ -75,11 +75,12 @@ new Elysia({ prefix: "/api" })
   )
 
   .patch(
-    "/messages:id",
-    async ({ set, body }) => {
+    "/messages/:id",
+    async ({ set, body, params }) => {
       try {
-        //MessageService.update
+        const updatedMessage = MessageService.updateMessage({ body, params });
         set.status = 202;
+        return updatedMessage;
       } catch (e) {
         if (e instanceof PrismaClientInitializationError) {
           set.status = 503;
@@ -102,6 +103,7 @@ new Elysia({ prefix: "/api" })
     },
     {
       body: MessageModel.PostMessageBody,
+      params: MessageModel.PatchMessageParams,
     },
   )
 
