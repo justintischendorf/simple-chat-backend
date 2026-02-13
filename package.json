@@ -24,7 +24,6 @@
   },
   "scripts": {
     "rest": "bun run --watch apps/rest/src/message/index.ts",
-    "worker": "bun run --watch apps/rest/src/worker/index.ts",
-    "dev": "bun run --parallel --watch rest worker"
+    "worker": "bun run --watch apps/rest/src/worker/index.ts"
   }
 }
