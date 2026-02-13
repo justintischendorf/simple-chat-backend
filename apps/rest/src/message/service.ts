@@ -1,5 +1,8 @@
 import { prisma } from "../../../../packages/database/src";
-import { deleteAllFromCache } from "../../../../packages/modules/redis/cache";
+import {
+  deleteAllFromCache,
+  postMessageToCache,
+} from "../../../../packages/modules/redis/cache";
 import { enqueueMessage } from "../../../../packages/modules/redis/queue";
 import {
   CLOUD_EVENT_SOURCE,
@@ -27,6 +30,25 @@ export abstract class MessageService {
     });
 
     return createdMessage;
+  }
+
+  static async updateMessage({
+    body,
+    params,
+  }: {
+    body: (typeof MessageModel.PostMessageBody)["static"];
+    params: (typeof MessageModel.PatchMessageParams)["static"];
+  }) {
+    const updatedMessage = await prisma.message.update({
+      where: {
+        id: params.id,
+      },
+      data: {
+        ...body,
+      },
+    });
+    postMessageToCache(updatedMessage);
+    return updatedMessage;
   }
 
   static async deleteMessage() {

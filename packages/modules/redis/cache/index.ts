@@ -3,9 +3,8 @@ import type { Message } from "../../../database/generated/prisma/client";
 
 const redis = new Redis();
 
-export async function addMessageToCache(data: Message) {
+export async function postMessageToCache(data: Message) {
   await redis.set(data.id, JSON.stringify(data), "EX", 43200);
-  // redis.get(key)
 }
 
 export async function deleteAllFromCache() {
