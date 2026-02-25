@@ -1,0 +1,9 @@
+FROM oven/bun:1
+WORKDIR /app
+COPY package.json /app
+COPY bun.lock /app
+RUN bun install
+COPY packages/database/prisma /app/prisma
+RUN bunx prisma generate
+COPY . .
+CMD ["bun", "apps/rest/src/message/index.ts"]

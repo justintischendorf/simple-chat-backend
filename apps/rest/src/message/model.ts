@@ -5,4 +5,7 @@ export namespace MessageModel {
     sender: t.String(),
     content: t.String(),
   });
+  export const PatchMessageParams = t.Object({
+    id: t.String(),
+  });
 }
