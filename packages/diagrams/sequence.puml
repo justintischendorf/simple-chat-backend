@@ -1,0 +1,56 @@
+@startuml
+actor Client
+participant "REST API" as API
+participant "ORM (Prisma)" as ORM
+database "Postgres DB" as DB
+queue "Redis Queue" as Queue
+participant "Worker (PlainTS)" as Worker
+participant "Redis Cache" as Cache
+
+== GET /api/messages ==
+group GET /api/messages
+    Client -> API: GET /api/messages
+    API -> ORM: findMany()
+    ORM -> DB: SELECT todos
+    DB --> ORM: todos
+    ORM --> API: todos
+    API --> Client: todos\nStatus 200
+end
+
+== POST /api/messages ==
+group POST /api/messages
+    Client -> API: POST /api/messages
+    API -> Queue: enqueue event
+    API --> Client: Status 202
+
+    Queue -> Worker: event
+    Worker -> ORM: create(todo)
+    ORM -> DB: INSERT todo
+    DB --> ORM: ok
+    ORM --> Worker: ok
+    Worker -> Cache: write todo
+end
+
+== PATCH /api/messages/:id ==
+group PATCH /api/messages/:id
+    Client -> API: PATCH /api/messages/:id
+    API -> ORM: update(todo)
+    ORM -> DB: UPDATE todo
+    DB --> ORM: todo
+    ORM --> API: todo
+    API -> Cache: update todo
+    API --> Client: todo\nStatus 200
+end
+
+== DELETE /api/messages ==
+group DELETE /api/messages
+    Client -> API: DELETE /api/messages
+    API -> ORM: delete(todo)
+    ORM -> DB: DELETE todo
+    DB --> ORM: ok
+    ORM --> API: ok
+    API -> Cache: remove todo
+    API --> Client: Status 200
+end
+
+@enduml

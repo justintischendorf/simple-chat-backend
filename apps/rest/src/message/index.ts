@@ -9,7 +9,7 @@ import {
 } from "@prisma/client/runtime/wasm-compiler-edge";
 import { MissingArgumentsError } from "../../../../packages/modules/errors";
 
-new Elysia({ prefix: "/api" })
+const app = new Elysia({ prefix: "/api" })
 
   .get("/messages", async ({ set }) => {
     try {
@@ -79,7 +79,7 @@ new Elysia({ prefix: "/api" })
     async ({ set, body, params }) => {
       try {
         const updatedMessage = MessageService.updateMessage({ body, params });
-        set.status = 202;
+        set.status = 200;
         return updatedMessage;
       } catch (e) {
         if (e instanceof PrismaClientInitializationError) {
@@ -110,7 +110,7 @@ new Elysia({ prefix: "/api" })
   .delete("/messages", async ({ set }) => {
     try {
       MessageService.deleteMessage();
-      set.status = 202;
+      set.status = 200;
     } catch (e) {
       if (e instanceof PrismaClientInitializationError) {
         set.status = 503;
@@ -132,3 +132,5 @@ new Elysia({ prefix: "/api" })
     }
   })
   .listen(3000);
+
+console.log(`🦊 Elysia läuft auf http://localhost:${app.server?.port}`);
